@@ -108,9 +108,17 @@ def	GrbLine_ConvertCoord(coord, c_format, units, z_format):
 		
 def GrbFile_GetConvertedCoords(GbrFileName):
 	unit_mode = GrbFile_GetUnitMode(GbrFileName)
+	if unit_mode is -1:
+		return -1
 	coord_format = GrbFile_GetCoordFormat(GbrFileName)
+	if coord_format is -1:
+		return -1
 	zero_format = GrbFile_getZeroFormat(GbrFileName)
+	if zero_format is -1:
+		return -1
 	raw_coords = GrbFile_GetD03Coords(GbrFileName)
+	if raw_coords is -1:
+		return -1
 	
 	converted_coords = []
 	for c in raw_coords:
