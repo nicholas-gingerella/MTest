@@ -12,9 +12,9 @@ GerberFormatInfo = {
 
 # If we couldn't find the necessary format data from
 # the file, close the program
-for key,value in GerberFormatInfo.items(): 
+for key, value in GerberFormatInfo.items(): 
   if value is None:
-    print(key," not found")
+    print(key, " not found")
     print("Failed to find all necessary format Information")
     print("Closing program")
     sys.exit()
@@ -25,13 +25,13 @@ elif GerberFormatInfo["ZeroFormat"] is "L":
   ZeroFormatString = "Leading 0 Format"
 else:
   ZeroFormatString = "No 0 Format Detected"
-print("UNIT MODE:",GerberFormatInfo["UnitMode"])
-print("COORDINATE FORMAT:",GerberFormatInfo["CoordFormat"])
-print("TRAILING/LEADING 0 FORMAT:",ZeroFormatString)
+print("UNIT MODE:", GerberFormatInfo["UnitMode"])
+print("COORDINATE FORMAT:", GerberFormatInfo["CoordFormat"])
+print("TRAILING/LEADING 0 FORMAT:", ZeroFormatString)
 
 # Look at point coordinates found in gerber file (D03 aperture flashes)
 PointCoordinates = GerberProcessor.FileReader.get_file_point_coordinates(GerberFileName)
-print("Total Points Identified:",len(PointCoordinates))
+print("Total Points Identified:", len(PointCoordinates))
 print("Raw Point -> Translated Point")
 
 TranslatedCoordinates = []
