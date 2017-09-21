@@ -1,8 +1,10 @@
 import sys
+import csv
 import GerberProcessor.FileReader
 import GerberProcessor.LineReader
 
-GerberFileName = "./Files/test.pho"
+GerberFileName = "./Files/art010.pho"
+TestPointFileName = "./Files/art010-TestPoints.csv"
 
 GerberFormatInfo = {
 "UnitMode"         : GerberProcessor.FileReader.get_file_coordinate_units(GerberFileName),
@@ -32,17 +34,51 @@ print("TRAILING/LEADING 0 FORMAT:", ZeroFormatString)
 # Look at point coordinates found in gerber file (D03 aperture flashes)
 PointCoordinates = GerberProcessor.FileReader.get_file_point_coordinates(GerberFileName)
 print("Total Points Identified:", len(PointCoordinates))
-print("Raw Point -> Translated Point")
+#print("Raw Point -> Translated Point")
 
 TranslatedCoordinates = []
 for point in PointCoordinates:
-
   newCoord = GerberProcessor.LineReader.convert_raw_point_coordinate(
     point,
     GerberFormatInfo["CoordFormat"],
     GerberFormatInfo["UnitMode"],
     GerberFormatInfo["ZeroFormat"])
-  
   TranslatedCoordinates.append(newCoord)
+  #print(point + " -> " + newCoord)
 
-  print(point + " -> " + newCoord)
+apertures = GerberProcessor.FileReader.get_file_aperture_definitions(GerberFileName)
+print("Found Aperture Defs:",len(apertures))
+for a in apertures:
+  print(a)
+
+
+
+
+
+
+# compare a csv of test points to a gerber file
+test_coords = []
+missing_coords = []
+with open(TestPointFileName) as csvTestPoints:
+  reader = csv.reader(csvTestPoints)
+  for row in reader:
+    test_coords.append(','.join(row))
+
+num_test_coords = len(test_coords)
+found_count = 0
+not_found_count = 0
+for t in test_coords:
+  if t not in TranslatedCoordinates:
+    print(t + " -> " + "NOT FOUND")
+    missing_coords.append(t)
+  else:
+    print(t + " -> " + "FOUND")
+    found_count = found_count + 1
+
+not_found_count = num_test_coords - found_count
+print("Total Test Points:", num_test_coords)
+print("Number of matching test coordinates:", found_count)
+print("Number of missing test coordinates:", not_found_count)
+print("Missing Coordinates")
+for m in missing_coords:
+  print(m)
