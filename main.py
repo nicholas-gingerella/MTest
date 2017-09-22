@@ -8,6 +8,7 @@ TestPointFileName = "./Files/art010-TestPoints.csv"
 
 GerberFormatInfo = {
 "UnitMode"         : GerberProcessor.FileReader.get_file_coordinate_units(GerberFileName),
+"CoordinateMode"   : GerberProcessor.FileReader.get_file_coordinate_mode(GerberFileName),
 "CoordFormat"      : GerberProcessor.FileReader.get_file_coordinate_format(GerberFileName),
 "ZeroFormat"       : GerberProcessor.FileReader.get_file_zero_format(GerberFileName)
 }
@@ -28,6 +29,7 @@ elif GerberFormatInfo["ZeroFormat"] is "L":
 else:
   ZeroFormatString = "No 0 Format Detected"
 print("UNIT MODE:", GerberFormatInfo["UnitMode"])
+print("COORDINATE_MODE:", GerberFormatInfo["CoordinateMode"])
 print("COORDINATE FORMAT:", GerberFormatInfo["CoordFormat"])
 print("TRAILING/LEADING 0 FORMAT:", ZeroFormatString)
 

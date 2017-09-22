@@ -11,7 +11,7 @@ def get_aperture_code(line):
     return None
 
 
-def  convert_raw_point_coordinate(coord, c_format, units, z_format):
+def convert_raw_point_coordinate(coord, c_format, units, z_format):
   x_unit = c_format[1:3]
   y_unit = c_format[4:6]
   x_coord = coord[coord.find("X") + 1:coord.find("Y")]
@@ -36,4 +36,10 @@ def  convert_raw_point_coordinate(coord, c_format, units, z_format):
     return converted_x + "," + converted_y
     
   elif z_format is "L":
-    print("format for Leading 0 mode")
+    new_x_coord = x_coord + "0"*(x_total_digits - len(x_coord))
+    new_y_coord = y_coord + "0"*(y_total_digits - len(y_coord))
+    
+    # insert the decimal point
+    converted_x = (new_x_coord[:x_before_decimal] + "." + new_x_coord[x_before_decimal:]).lstrip("0")
+    converted_y = (new_y_coord[:y_before_decimal] + "." + new_y_coord[y_before_decimal:]).lstrip("0")
+    return converted_x + "," + converted_y

@@ -1,18 +1,45 @@
-import re
+import re 
+# Unit Mode Return Values
+UNIT_MODE_INCHES="INCHES"
+UNIT_MODE_MILLIMETERS="MILLIMETERS"
+
+# Zero Format Return Values
+ZERO_FORMAT_LEADING = "L"
+ZERO_FORMAT_TRAILING = "T"
+
+# Coordinate Mode Values
+COORDINATE_MODE_ABSOLUTE = "A"
+COORDINATE_MODE_INCREMENTAL = "I"
 
 def get_file_coordinate_units(gerberFileName):
   try:
     with open(gerberFileName, "r") as GbrFile:
       for line in GbrFile:
         if "MOIN" in line:
-          return "INCHES"
+          return UNIT_MODE_INCHES
         elif "MOMM" in line:
-          return "MILLIMETERS"
+          return UNIT_MODE_MILLIMETERS
   except IOError:
     return -1
     
   # Failed to find a mode 
   return None 
+
+
+def get_file_coordinate_mode(gerberFileName):
+  try:
+    with open(gerberFileName, "r") as GrbFile:
+      for line in GrbFile:
+        if "FS" in line:
+          if "A" in line:
+            return COORDINATE_MODE_ABSOLUTE
+          elif "I" in line:
+            return COORDINATE_MODE_INCREMENTAL
+  except IOError:
+    return -1
+  
+  # Failed to find mode
+  return None
 
 
 def get_file_zero_format(gerberFileName):
@@ -45,7 +72,8 @@ def get_file_coordinate_format(gerberFileName):
   # Failed to find format
   return None
 
-
+#TODO: Implement coordinate parsing for incremental mode
+#      Currently assumes absolute mode for coordinates
 def get_file_point_coordinates(gerberFileName):
   coord_list = []
   latestXYCoord = 0
