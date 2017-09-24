@@ -40,25 +40,23 @@ print("Total Points Identified:", len(PointCoordinates))
 
 TranslatedCoordinates = []
 for point in PointCoordinates:
-  newCoord = GerberProcessor.LineReader.convert_raw_point_coordinate(
+  newCoordX, newCoordY = GerberProcessor.LineReader.convert_raw_point_coordinate(
     point,
     GerberFormatInfo["CoordFormat"],
     GerberFormatInfo["UnitMode"],
     GerberFormatInfo["ZeroFormat"])
-  TranslatedCoordinates.append(newCoord)
-  #print(point + " -> " + newCoord)
+  print(point + " -> ",newCoordX,newCoordY)
+  TranslatedCoordinates.append((newCoordX, newCoordY))
 
+print(TranslatedCoordinates)
 apertures = GerberProcessor.FileReader.get_file_aperture_definitions(GerberFileName)
 print("Found Aperture Defs:",len(apertures))
 for a in apertures:
   print(a)
 
-
-
-
-
-
 # compare a csv of test points to a gerber file
+# TODO: Create a get_file_test_points function that
+#       returns a float coordinate tuple
 test_coords = []
 missing_coords = []
 with open(TestPointFileName) as csvTestPoints:
@@ -70,7 +68,10 @@ num_test_coords = len(test_coords)
 found_count = 0
 not_found_count = 0
 for t in test_coords:
-  if t not in TranslatedCoordinates:
+  print(t)
+  test_x = float(t[:t.find(',')])
+  test_y = float(t[t.find(',')+1:])
+  if (test_x,test_y) not in TranslatedCoordinates:
     print(t + " -> " + "NOT FOUND")
     missing_coords.append(t)
   else:
