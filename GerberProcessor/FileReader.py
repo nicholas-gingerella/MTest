@@ -1,7 +1,10 @@
 import re 
+import csv
+import Utilities.UnitConversion
+
 # Unit Mode Return Values
-UNIT_MODE_INCHES="INCHES"
-UNIT_MODE_MILLIMETERS="MILLIMETERS"
+GERBER_UNIT_MODE_INCHES="INCHES"
+GERBER_UNIT_MODE_MILLIMETERS="MILLIMETERS"
 
 # Zero Format Return Values
 ZERO_FORMAT_LEADING = "L"
@@ -16,9 +19,9 @@ def get_file_coordinate_units(gerberFileName):
     with open(gerberFileName, "r") as GbrFile:
       for line in GbrFile:
         if "MOIN" in line:
-          return UNIT_MODE_INCHES
+          return GERBER_UNIT_MODE_INCHES
         elif "MOMM" in line:
-          return UNIT_MODE_MILLIMETERS
+          return GERBER_UNIT_MODE_MILLIMETERS
   except IOError:
     return -1
     
@@ -126,6 +129,37 @@ def get_file_aperture_definitions(gerberFileName):
     return apertures
   else:
     return None
+
+
+def get_file_test_points(csvTestFile, units="INCHES"):
+  coord_list = []
+  with open(csvTestFile) as TestPoints:
+    reader = csv.reader(TestPoints)
+    for row in reader:
+      x_coord = float(row[0])
+      y_coord = float(row[1])
+      
+      if units is "MILS":
+        x_coord = Utilities.UnitConversion.mils_to_inches(x_coord)
+        y_coord = Utilities.UnitConversion.mils_to_inches(y_coord)
+
+      coord_list.append((x_coord, y_coord))
+  return coord_list 
+
+
+
+def main():
+  test_points = get_file_test_points('../Files/art010-TestPoints.csv')
+  print(test_points)
+  test_points = get_file_test_points('../TestPointsFor1-11-17.csv', "MILS")
+  print(test_points)
+
+
+
+
+if __name__ == "__main__":
+  # stuff only to run when not called via 'import' here
+  main()
 # def get_translated_point_coordinates(GbrFileName):
 #   unit_mode = get_file_coordinate_units(GbrFileName)
 #   if unit_mode is -1:

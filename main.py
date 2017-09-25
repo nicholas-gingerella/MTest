@@ -1,5 +1,4 @@
 import sys
-import csv
 import GerberProcessor.FileReader
 import GerberProcessor.LineReader
 
@@ -48,7 +47,6 @@ for point in PointCoordinates:
   print(point + " -> ",newCoordX,newCoordY)
   TranslatedCoordinates.append((newCoordX, newCoordY))
 
-print(TranslatedCoordinates)
 apertures = GerberProcessor.FileReader.get_file_aperture_definitions(GerberFileName)
 print("Found Aperture Defs:",len(apertures))
 for a in apertures:
@@ -57,25 +55,50 @@ for a in apertures:
 # compare a csv of test points to a gerber file
 # TODO: Create a get_file_test_points function that
 #       returns a float coordinate tuple
-test_coords = []
-missing_coords = []
-with open(TestPointFileName) as csvTestPoints:
-  reader = csv.reader(csvTestPoints)
-  for row in reader:
-    test_coords.append(','.join(row))
+test_coords = GerberProcessor.FileReader.get_file_test_points('Files/art010-TestPoints.csv')
 
 num_test_coords = len(test_coords)
 found_count = 0
 not_found_count = 0
+missing_coords = []
 for t in test_coords:
-  print(t)
-  test_x = float(t[:t.find(',')])
-  test_y = float(t[t.find(',')+1:])
-  if (test_x,test_y) not in TranslatedCoordinates:
-    print(t + " -> " + "NOT FOUND")
+  if t not in TranslatedCoordinates:
     missing_coords.append(t)
   else:
-    print(t + " -> " + "FOUND")
+    found_count = found_count + 1
+
+not_found_count = num_test_coords - found_count
+print("Total Test Points:", num_test_coords)
+print("Number of matching test coordinates:", found_count)
+print("Number of missing test coordinates:", not_found_count)
+print("Missing Coordinates")
+for m in missing_coords:
+  print(m)
+  
+
+# Look at point coordinates found in gerber file (D03 aperture flashes)
+PointCoordinates = GerberProcessor.FileReader.get_file_point_coordinates("WTMLYR4.art")
+print("Total Points Identified:", len(PointCoordinates))
+#print("Raw Point -> Translated Point")
+
+TranslatedCoordinates = []
+for point in PointCoordinates:
+  newCoordX, newCoordY = GerberProcessor.LineReader.convert_raw_point_coordinate(
+    point,
+    GerberFormatInfo["CoordFormat"],
+    GerberFormatInfo["UnitMode"],
+    GerberFormatInfo["ZeroFormat"])
+  #print(point + " -> ",newCoordX,newCoordY)
+  TranslatedCoordinates.append((newCoordX, newCoordY))
+test_coord1 = GerberProcessor.FileReader.get_file_test_points("TestPointsFor1-11-17.csv", "MILS")
+num_test_coords = len(test_coord1)
+found_count = 0
+not_found_count = 0
+missing_coords = []
+for t in test_coord1:
+  if t not in TranslatedCoordinates:
+    missing_coords.append(t)
+  else:
     found_count = found_count + 1
 
 not_found_count = num_test_coords - found_count

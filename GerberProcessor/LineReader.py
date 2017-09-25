@@ -35,6 +35,15 @@ def convert_raw_point_coordinate(coord, c_format, units, z_format):
     # insert the decimal point
     converted_x = (new_x_coord[:x_before_decimal] + "." + new_x_coord[x_before_decimal:]).lstrip("0")
     converted_y = (new_y_coord[:y_before_decimal] + "." + new_y_coord[y_before_decimal:]).lstrip("0")
+
+    if "-" in converted_x:
+      converted_x = converted_x.replace("-","")
+      converted_x = "-"+converted_x
+      
+    if "-" in converted_y:
+      converted_y = converted_y.replace("-","")
+      converted_y = "-"+converted_y
+
     return float(converted_x), float(converted_y)
     
   elif z_format is "L":
@@ -44,4 +53,13 @@ def convert_raw_point_coordinate(coord, c_format, units, z_format):
     # insert the decimal point
     converted_x = (new_x_coord[:x_before_decimal] + "." + new_x_coord[x_before_decimal:]).lstrip("0")
     converted_y = (new_y_coord[:y_before_decimal] + "." + new_y_coord[y_before_decimal:]).lstrip("0")
+
+    if "-" in converted_x:
+      converted_x = converted_x.replace("-","")
+      converted_x = "-"+converted_x
+      
+    if "-" in converted_y:
+      converted_y = converted_y.replace("-","")
+      converted_y = "-"+converted_y
+
     return float(converted_x), float(converted_y)
