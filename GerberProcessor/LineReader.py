@@ -9,8 +9,7 @@ def get_aperture_code(line):
     return match.group(1)
   else:
     return None
-
-
+  
 # A raw coordinate point is the point as it appears in the Gerber file
 # X####Y####D03*, this returns a converted point in decimal format
 def convert_raw_point_coordinate(coord, c_format, units, z_format):

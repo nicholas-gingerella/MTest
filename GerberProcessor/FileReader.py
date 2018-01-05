@@ -116,6 +116,82 @@ def get_file_point_coordinates(gerberFileName):
   
   return coord_list
 
+
+def get_file_tool_selects(gerberFileName):
+  tools = []
+  with open(gerberFileName) as GrbFile:
+    for line in GrbFile:
+      if line.startswith("G54D"):
+        match = re.search('G54(D[0-9]+)\*', line)
+        
+        # first element of tuple will be the line and the
+        # second will be just the D-code of the aperture
+        tool_info = (line, match.group(1))
+        tools.append(tool_info)
+  return tools
+
+def get_aperture_flashes(gerberFileName, aperture):
+  apertures = get_file_aperture_definitions(gerberFileName)
+  apDCodeList = []
+  
+  coord_list = []
+  latestXYCoord = 0
+  
+  dcodeFound = False
+    
+  for a in apertures:
+    apDCodeList.append(a[1])
+  
+  #valid aperture, continue processing
+  if aperture in apDCodeList:
+    with open(gerberFileName) as GrbFile:
+      for line in GrbFile:
+        if dcodeFound is False:
+          #we are still searching for the tool select
+          if line.startswith("G54D"):
+            match = re.search('G54(D[0-9]+)\*', line)
+            if match is not None:
+              if aperture == match.group(1):
+                dcodeFound = True
+                
+        elif (dcodeFound) and (line.startswith('X') or line.startswith('Y')):
+          #we have already found the tool select, lets
+          #get the xy coordinate flashes that appear before
+          #the next line that starts with a G (a new Gcode)        
+            try:
+              # clean off any whitespace or newline chars
+              coordLine = line.strip()
+      
+              # is this an aperture flash? if so, it should
+              # end with flash code D03
+              if coordLine.endswith("D03*"):
+                # flash identified, now start cleaning
+                # up the line so only the XY coordinate
+                # is left
+                coordLine = coordLine.replace("D03*","")
+                #should have a clean coordinate line at this point
+                if "X" in coordLine and "Y" in coordLine:
+                  latestXYCoord = coordLine
+                elif "X" in coordLine and "Y" not in coordLine:
+                  #use last Y coord with this X coord
+                  match = re.search("(Y[0-9]+)",latestXYCoord)
+                  if match is not None:
+                    coordLine = coordLine + match.group(1)
+                elif "X" not in coordLine and "Y" in coordLine:
+                  #use last X coord with this Y coord
+                  match = re.search("(X[0-9]+)",latestXYCoord)
+                  if match is not None:
+                    coordLine = match.group(1) + coordLine
+      
+                coord_list.append(coordLine)
+            except IOError:
+              return -1
+        else:
+          break
+        
+  print(len(coord_list))
+  return coord_list
+
 def get_file_aperture_definitions(gerberFileName):
   apertures = []
   with open(gerberFileName) as GrbFile:
