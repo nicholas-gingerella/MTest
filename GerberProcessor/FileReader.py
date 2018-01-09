@@ -121,12 +121,18 @@ def get_file_tool_selects(gerberFileName):
   tools = []
   with open(gerberFileName) as GrbFile:
     for line in GrbFile:
-      if line.startswith("G54D"):
-        match = re.search('G54(D[0-9]+)\*', line)
+      if line.startswith("G54"):
+        match = re.search('G54D([0-9]+)\*', line)
+        tool = match.group(1)
         
+        if len(tool) < 3:
+          tool = "D0" + tool
+        else:
+          tool = "D" + tool
+          
         # first element of tuple will be the line and the
         # second will be just the D-code of the aperture
-        tool_info = (line, match.group(1))
+        tool_info = (line, tool)
         tools.append(tool_info)
   return tools
 
@@ -148,10 +154,15 @@ def get_aperture_flashes(gerberFileName, aperture):
       for line in GrbFile:
         if dcodeFound is False:
           #we are still searching for the tool select
-          if line.startswith("G54D"):
-            match = re.search('G54(D[0-9]+)\*', line)
+          if line.startswith("G54"):
+            match = re.search('G54D([0-9]+)\*', line)
             if match is not None:
-              if aperture == match.group(1):
+              tool = match.group(1)
+              if len(tool) < 3:
+                tool = "D0" + tool
+              else:
+                tool = "D" + tool
+              if aperture == tool:
                 dcodeFound = True
                 
         elif (dcodeFound) and (line.startswith('X') or line.startswith('Y')):
