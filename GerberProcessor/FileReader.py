@@ -217,6 +217,16 @@ def get_file_aperture_definitions(gerberFileName):
   else:
     return None
 
+def get_aperture_size(apertureCode, gerberFileName):
+  with open(gerberFileName) as GrbFile:
+    for line in GrbFile:
+      match = re.search('AD(D[0-9]+)(C),(.*)\*', line)
+      if match is not None:
+        if match.group(1) == apertureCode:
+          return match.group(3)
+
+  return None
+  
 
 def get_file_test_points(csvTestFile, units="INCHES"):
   coord_list = []

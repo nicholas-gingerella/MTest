@@ -98,8 +98,12 @@ for g,points in gcodeDefs.items():
   print(len(points))
   print(points)
   
-  #gcodeDefs is now a dictionary, where the key is the G54Dcode, and the the value is a list of 
-  #coordinate flashes for that particular aperture. We now have a grouping of points to a particulare
-  #drill size (the aperture size), we just need to look up the aperture size of the Gcode to to know
-  #what size drill that group of points will need
+#gcodeDefs is now a dictionary, where the key is the G54Dcode, and the the value is a list of 
+#coordinate flashes for that particular aperture. We now have a grouping of points to a particulare
+#drill size (the aperture size), we just need to look up the aperture size of the Gcode to to know
+#what size drill that group of points will need
+print("aperture sizes")
+for g, points in gcodeDefs.items():
+  size = GerberProcessor.FileReader.get_aperture_size(g, GerberFileName)
+  print(g,size)
   
