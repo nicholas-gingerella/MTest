@@ -34,11 +34,11 @@ print("COORDINATE FORMAT:", GerberFormatInfo["CoordFormat"])
 print("TRAILING/LEADING 0 FORMAT:", ZeroFormatString)
 
 # Look at point coordinates found in gerber file (D03 aperture flashes)
-PointCoordinates = GerberProcessor.FileReader.get_file_point_coordinates(GerberFileName)
-print("Total Points Identified:", len(PointCoordinates))
+rawApertureFlashCoordinates = GerberProcessor.FileReader.get_file_point_coordinates(GerberFileName)
+print("Total Points Identified:", len(rawApertureFlashCoordinates))
 
 apertures = GerberProcessor.FileReader.get_file_aperture_definitions(GerberFileName)
-print("Found Aperture Defs:",len(apertures))
+print("Found Aperture Defs:", len(apertures))
 for a in apertures:
   print(a)
 
@@ -46,46 +46,47 @@ for a in apertures:
 # the tool select is also picking up rectangle flashes, but we only care about
 # circular flashes (for drill holes)
 tool_selects = GerberProcessor.FileReader.get_file_tool_selects(GerberFileName)
-print("tool selects:",len(tool_selects))
+print("tool selects:", len(tool_selects))
 for t in tool_selects:
   print(t)
   
 
-def get_circle_apertures(aprtrList, toolList):
-  #use a dictionary to find whether the tool dcodes 
-  #exist within the defined circle aperture Table
+def filter_tool_list(aprtrList, toolList):
+  # use a dictionary to find whether the tool dcodes 
+  # exist within the defined circle aperture Table
   toolDict = {}
   for a in toolList:
-    toolDict[a[1]]=0
+    toolDict[a[1]] = 0
   
-  #we now have a dict of circle apertures,
-  #lets see if the items in the tool list
-  #are found among the circle defs
+  # we now have a dict of circle apertures,
+  # lets see if the items in the tool list
+  # are found among the circle defs
   for a in aprtrList:
     if a[1] in toolDict:
-      toolDict[a[1]]=1
+      toolDict[a[1]] = 1
   
   circleToolSelectList = []
-  for key,value in toolDict.items():
+  for key, value in toolDict.items():
     print(key, value)
     
     if value is 1:
       circleToolSelectList.append(key)
   
   return circleToolSelectList
+
   
 print("tool selects that refer to circular apertures:")
-validTools = get_circle_apertures(apertures, tool_selects)
+validTools = filter_tool_list(apertures, tool_selects)
 gcodeDefs = {}
 for t in validTools:
   print(t)
   gcodeDefs[t] = None
   
-#Now that we have a list of tool selects that refer to circular apertures,
-#Find the flash commands and see which xy coordinate points are associated
-#with them. Should be a series of xy coordinates after the G54 command, once
-#another G code command appears, that is the end of the flashes for this
-#particular aperture
+# Now that we have a list of tool selects that refer to circular apertures,
+# Find the flash commands and see which xy coordinate points are associated
+# with them. Should be a series of xy coordinates after the G54 command, once
+# another G code command appears, that is the end of the flashes for this
+# particular aperture
 
 for tool in validTools:
   if tool in gcodeDefs:
@@ -93,17 +94,17 @@ for tool in validTools:
   else:
     print("tool not found in defined gcodes. did the get aperture flashes method pick up a bad Gcode defintion?")
 
-for g,points in gcodeDefs.items():
+for g, points in gcodeDefs.items():
   print("Aperture " + g)
   print(len(points))
   print(points)
   
-#gcodeDefs is now a dictionary, where the key is the G54Dcode, and the the value is a list of 
-#coordinate flashes for that particular aperture. We now have a grouping of points to a particulare
-#drill size (the aperture size), we just need to look up the aperture size of the Gcode to to know
-#what size drill that group of points will need
+# gcodeDefs is now a dictionary, where the key is the G54Dcode, and the the value is a list of 
+# coordinate flashes for that particular aperture. We now have a grouping of points to a particulare
+# drill size (the aperture size), we just need to look up the aperture size of the Gcode to to know
+# what size drill that group of points will need
 print("aperture sizes")
 for g, points in gcodeDefs.items():
   size = GerberProcessor.FileReader.get_aperture_size(g, GerberFileName)
-  print(g,size)
+  print(g, size)
   
